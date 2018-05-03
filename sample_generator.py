@@ -3,33 +3,34 @@ import tensorflow as tf
 import numpy as np
 import scipy as sp
 import os
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from scipy import signal
-from mpl_toolkits.mplot3d import Axes3D
+#from mpl_toolkits.mplot3d import Axes3D
 
 class ADL_Generator(object):
 
-  def __init__(self, data_dir):
+  def __init__(self, data_dir, resample_rate = 30, sample_period = 5, med_filter = 1):
     self.sample_rate = 32 #Hz
     self.sensor_min = -1.5 * 9.8 #g
     self.sensor_max =  1.5 * 9.8 #g
     self.sample_res = 63
 
-    self.resample_rate = 30 #Hz
-    self.sample_period = 5 #seconds
-    self.med_filter = 1
+    self.resample_rate = resample_rate #Hz
+    self.sample_period = sample_period #seconds
+    self.med_filter = med_filter
 
     self.act_records = []
-    self.act_records.append(getProcessedRecords("HMP_Dataset/Walk/"))
-    self.act_records.append(getProcessedRecords("HMP_Dataset/Brush_teeth/"))
-    self.act_records.append(getProcessedRecords("HMP_Dataset/Climb_stairs/"))
-    self.act_records.append(getProcessedRecords("HMP_Dataset/Descend_stairs/"))
-    self.act_records.append(getProcessedRecords("HMP_Dataset/Standup_chair/"))
-    self.act_records.append(getProcessedRecords("HMP_Dataset/Sitdown_chair/"))
+    self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Walk/")))
+    self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Brush_teeth/")))
+    self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Climb_stairs/")))
+    self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Descend_stairs/")))
+    #self.act_records.append(getProcessedRecords(os.path.join(data_dir, "Standup_chair/")))
+    #self.act_records.append(getProcessedRecords(os.path.join(data_dir, "Sitdown_chair/")))
+
 
   def getProcessedRecords(self, file):
-    records = getRecordsFromTxt(file)
-    records = applyFil(records, self.med_filter, self.resample_rate)
+    records = self.getRecordsFromTxt(file)
+    records = self.applyFil(records)
     return records
 
   def scaleData(self, _data):
@@ -41,13 +42,13 @@ class ADL_Generator(object):
       return data
 
   def getRecordsFromTxt(self, folderPath):
+      records = [] #append a list
       for root, dirs, files in os.walk(folderPath, topdown=False):
   #         print(root)
   #         print(dirs)
-          prev_shape = None
-          records = [] #append a list
+          #prev_shape = None
           for name in files:
-              data = scaleData(parseAdlTxt(os.path.join(root, name)))
+              data = self.scaleData(self.parseAdlTxt(os.path.join(root, name)))
 
   #             if(prev_shape != None and prev_shape != data.shape):
   #                 print("Error: data sample length not uniform ", data.shape)
@@ -59,11 +60,11 @@ class ADL_Generator(object):
               #print(name, data.shape)
       return records
 
-  def applyFil(self, records, med_size, self.resample_rate):
+  def applyFil(self, records):
       resample_factor = self.resample_rate / self.sample_rate
       for i, r in enumerate(records):
           resample_length = np.ceil(resample_factor * r.shape[0])
-          r = sp.signal.medfilt(r, med_size)
+          r = sp.signal.medfilt(r, self.med_filter)
           r = sp.signal.resample(r, resample_length.astype(np.int32))
           records[i] = r
 
@@ -93,14 +94,14 @@ class ADL_Generator(object):
     return (self.distort_image(image), label)
 
   def genTrainData(self):
-    label = np.random.randint(0, len(act_records))
-    data = randSegFromRecords(act_records[label], resample_rate * sample_period)
-    yield (data, label)
+    label = np.random.randint(0, len(self.act_records))
+    data = self.randSegFromRecords(self.act_records[label], self.resample_rate * self.sample_period)
+    yield (data, float(label))
 
   def genTestData(self):
     #data are randomly cropped, but there are bound to be dependency
     #use genTrainData() before proper testset is constructed
-    yield genTrainData()
+    yield self.genTrainData()
 
 # def sampleMeanShiftPlot(data, self.sample_rate):
     
