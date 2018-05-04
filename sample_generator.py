@@ -102,7 +102,7 @@ class ADL_Generator(object):
       res[label] = 1.0
       return res
 
-  def genTrainData(self):
+  def gen(self):
     label = np.random.randint(0, len(self.act_records))
 
     if(len(self.act_records[label]) == 0):
@@ -110,30 +110,25 @@ class ADL_Generator(object):
         exit()
 
     data = self.randSegFromRecords(self.act_records[label], self.seg_length)
-    yield (data, self.oneHotLabel(label))
+    return (data, self.oneHotLabel(label))
+      
+  def genTrainData(self):
+    yield self.gen()
 
   def genTrainDataFlat(self):
-    label = np.random.randint(0, len(self.act_records))
-    
-    if(len(self.act_records[label]) == 0):
-        print("act_records [", label, "] is empty")
-        exit()
-        
-    data = self.randSegFromRecords(self.act_records[label], self.seg_length)
+    (data, label) = self.gen()
     data = data.flatten()
-    label = self.oneHotLabel(label)
-    print("data shape ", data.shape, ", label shape ", label.shape)
     yield (data, label)
 
   def genTestData(self):
     #data are randomly cropped, but there are bound to be dependency
     #use genTrainData() before proper testset is constructed
-    yield self.genTrainData()
+    yield self.gen()
 
   def genTestDataFlat(self):
-    #data are randomly cropped, but there are bound to be dependency
-    #use genTrainData() before proper testset is constructed
-    yield self.genTrainDataFlat()
+    (data, label) = self.gen()
+    data = data.flatten()
+    yield (data, label)
 
 # def sampleMeanShiftPlot(data, self.sample_rate):
     
