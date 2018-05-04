@@ -26,6 +26,10 @@ class ADL_Generator(object):
     self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Brush_teeth/")))
     self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Climb_stairs/")))
     self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Descend_stairs/")))
+
+    for i, act in enumerate(self.act_records):
+        print(i,":", len(act))
+
     #self.act_records.append(getProcessedRecords(os.path.join(data_dir, "Standup_chair/")))
     #self.act_records.append(getProcessedRecords(os.path.join(data_dir, "Sitdown_chair/")))
 
@@ -57,6 +61,7 @@ class ADL_Generator(object):
   #                 exit(-1)
   #             else:
   #                 prev_shape = data.shape
+            records.append(data)
 
       return records
 
