@@ -4,23 +4,23 @@ import tensorflow as tf
 from sample_generator import ADL_Generator
 
 FLAGS = None
-keep_prob = 0.65
+#keep_prob = 0.65
 
 
 def deepnn(x):
   with tf.name_scope("Layer1"):
-    W_fc1 = weight_variable([450, 128], name='W_fc1')
-    b_fc1 = bias_variable([128], name='b_fc1')
+    W_fc1 = weight_variable([450, 192], name='W_fc1')
+    b_fc1 = bias_variable([192], name='b_fc1')
     a_fc1 = tf.add(tf.matmul(x, W_fc1), b_fc1, name="zscore")
     h_fc1 = tf.nn.relu(a_fc1)
-    layer1 = tf.nn.dropout(h_fc1, keep_prob)
+    layer1 = tf.nn.dropout(h_fc1, 0.80)
 
   with tf.name_scope("Layer2"):
-    W_fc2 = weight_variable([128, 64], name='W_fc2')
+    W_fc2 = weight_variable([192, 64], name='W_fc2')
     b_fc2 = bias_variable([64], name='b_fc2')
     a_fc2 = tf.add(tf.matmul(layer1, W_fc2), b_fc2, name="zscore")
     h_fc2 = tf.nn.relu(a_fc2)
-    layer2 = tf.nn.dropout(h_fc2, keep_prob)
+    layer2 = tf.nn.dropout(h_fc2, 0.65)
   
   with tf.name_scope("OuputLayer"):
     W_fc3 = weight_variable([64, 4], name='W_fc3')

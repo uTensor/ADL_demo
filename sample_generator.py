@@ -7,6 +7,8 @@ import os
 from scipy import signal
 #from mpl_toolkits.mplot3d import Axes3D
 
+# TODO: normalized the data
+
 class ADL_Generator(object):
 
   def __init__(self, data_dir, resample_rate = 30, sample_period = 5, med_filter = 1):
