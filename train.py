@@ -9,21 +9,21 @@ keep_prob = 0.65
 
 def deepnn(x):
   with tf.name_scope("Layer1"):
-    W_fc1 = weight_variable([150, 64], name='W_fc1')
-    b_fc1 = bias_variable([64], name='b_fc1')
+    W_fc1 = weight_variable([450, 128], name='W_fc1')
+    b_fc1 = bias_variable([128], name='b_fc1')
     a_fc1 = tf.add(tf.matmul(x, W_fc1), b_fc1, name="zscore")
     h_fc1 = tf.nn.relu(a_fc1)
     layer1 = tf.nn.dropout(h_fc1, keep_prob)
 
   with tf.name_scope("Layer2"):
-    W_fc2 = weight_variable([64, 32], name='W_fc2')
-    b_fc2 = bias_variable([32], name='b_fc2')
+    W_fc2 = weight_variable([128, 64], name='W_fc2')
+    b_fc2 = bias_variable([64], name='b_fc2')
     a_fc2 = tf.add(tf.matmul(layer1, W_fc2), b_fc2, name="zscore")
     h_fc2 = tf.nn.relu(a_fc2)
     layer2 = tf.nn.dropout(h_fc2, keep_prob)
   
   with tf.name_scope("OuputLayer"):
-    W_fc3 = weight_variable([32, 4], name='W_fc3')
+    W_fc3 = weight_variable([64, 4], name='W_fc3')
     b_fc3 = bias_variable([4], name='b_fc3')
     y_pred = tf.add(tf.matmul(layer2, W_fc3), b_fc3, name="prediction")
 
@@ -55,12 +55,12 @@ def main(_):
     # Import data
     adl_inputPipe = ADL_Generator(FLAGS.data_dir, resample_rate=resample_rate, sample_period=sample_period)
     ds_train = tf.data.Dataset.from_generator(
-      adl_inputPipe.genTrainData, (tf.float32, tf.float32), (tf.TensorShape([150]), tf.TensorShape([4])))
+      adl_inputPipe.genTrainDataFlat, (tf.float32, tf.float32), (tf.TensorShape([450]), tf.TensorShape([4])))
     #ds = ds.shuffle(buffer_size=FLAGS.shuffle_buffer_size)
     ds_train = ds_train.repeat()
     ds_train = ds_train.batch(batch_size=FLAGS.batch_size)
     ds_test = tf.data.Dataset.from_generator(
-      adl_inputPipe.genTestData, (tf.float32, tf.float32), (tf.TensorShape([150]), tf.TensorShape([4])))
+      adl_inputPipe.genTestDataFlat, (tf.float32, tf.float32), (tf.TensorShape([450]), tf.TensorShape([4])))
     ds_test = ds_test.repeat()
     ds_test = ds_test.batch(FLAGS.test_batch_size)
     iterator = tf.data.Iterator.from_structure(ds_train.output_types, ds_train.output_shapes)

@@ -19,6 +19,8 @@ class ADL_Generator(object):
     self.sample_period = sample_period #seconds
     self.med_filter = med_filter
 
+    self.seg_length = self.resample_rate * self.sample_period
+
     self.act_records = []
     self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Walk/")))
     self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Brush_teeth/")))
@@ -48,7 +50,7 @@ class ADL_Generator(object):
   #         print(dirs)
           #prev_shape = None
           for name in files:
-              data = self.scaleData(self.parseAdlTxt(os.path.join(root, name)))
+            data = self.scaleData(self.parseAdlTxt(os.path.join(root, name)))
 
   #             if(prev_shape != None and prev_shape != data.shape):
   #                 print("Error: data sample length not uniform ", data.shape)
@@ -56,8 +58,6 @@ class ADL_Generator(object):
   #             else:
   #                 prev_shape = data.shape
 
-              records.append(data)
-              #print(name, data.shape)
       return records
 
   def applyFil(self, records):
@@ -66,7 +66,12 @@ class ADL_Generator(object):
           resample_length = np.ceil(resample_factor * r.shape[0])
           r = sp.signal.medfilt(r, self.med_filter)
           r = sp.signal.resample(r, resample_length.astype(np.int32))
-          records[i] = r
+          
+          if r.shape[0] >= self.seg_length:
+            records[i] = r
+          else:
+            del records[i]
+            print("record deleted due to insufficient length")
 
       return records
 
@@ -76,6 +81,8 @@ class ADL_Generator(object):
       #print("r ", r.shape)
       if(seg_length > r.shape[0]):
           print("desired segment length exceeds sample length")
+          print("segment length: ", seg_length)
+          print("sample length: ", r.shape[0])
           exit()
       seg_start = np.random.randint(0, np.maximum(r.shape[0] - seg_length, 1))
       #print("seg_start ", seg_start)
@@ -85,23 +92,43 @@ class ADL_Generator(object):
       
       return r_slice
 
-  def gen(self):
-    num_images = self._images.shape[0]
-    rand_index = np.random.random_integers(num_images - 1)
-    label = self._labels[rand_index]
-    image = self._images[rand_index]
-    #mnist.train.images[np.random.random_integers(mnist.train.images.shape[0])]
-    return (self.distort_image(image), label)
+  def oneHotLabel(self, label):
+      res = np.zeros(len(self.act_records))
+      res[label] = 1.0
+      return res
 
   def genTrainData(self):
     label = np.random.randint(0, len(self.act_records))
-    data = self.randSegFromRecords(self.act_records[label], self.resample_rate * self.sample_period)
-    yield (data, float(label))
+
+    if(len(self.act_records[label]) == 0):
+        print("act_records [", label, "] is empty")
+        exit()
+
+    data = self.randSegFromRecords(self.act_records[label], self.seg_length)
+    yield (data, self.oneHotLabel(label))
+
+  def genTrainDataFlat(self):
+    label = np.random.randint(0, len(self.act_records))
+    
+    if(len(self.act_records[label]) == 0):
+        print("act_records [", label, "] is empty")
+        exit()
+        
+    data = self.randSegFromRecords(self.act_records[label], self.seg_length)
+    data = data.flatten()
+    label = self.oneHotLabel(label)
+    print("data shape ", data.shape, ", label shape ", label.shape)
+    yield (data, label)
 
   def genTestData(self):
     #data are randomly cropped, but there are bound to be dependency
     #use genTrainData() before proper testset is constructed
     yield self.genTrainData()
+
+  def genTestDataFlat(self):
+    #data are randomly cropped, but there are bound to be dependency
+    #use genTrainData() before proper testset is constructed
+    yield self.genTrainDataFlat()
 
 # def sampleMeanShiftPlot(data, self.sample_rate):
     
