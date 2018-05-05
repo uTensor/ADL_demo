@@ -29,6 +29,8 @@ class ADL_Generator(object):
     self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Climb_stairs/")))
     self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Descend_stairs/")))
 
+    self.n_classes = len(self.act_records)
+
     for i, act in enumerate(self.act_records):
         print(i,":", len(act))
 
@@ -113,7 +115,21 @@ class ADL_Generator(object):
 
     data = self.randSegFromRecords(self.act_records[label], self.seg_length)
     return (data, self.oneHotLabel(label))
-      
+
+  def next_batch(self, batch_size):
+    batch_data = np.empty((batch_size, self.seg_length, 3), dtype=np.float32)
+    batch_label = np.empty((batch_size, self.n_classes), dtype=np.float32)
+    for i in range(batch_size):
+      data, label = self.gen()
+      batch_data[i] = data
+      batch_label[i] = label
+    return batch_data, batch_label
+
+  def next_batch_flat(self, batch_size):
+    (batch_data, batch_label) = self.next_batch(batch_size)
+    batch_data = np.reshape(batch_data, (-1, self.seg_length * 3))
+    return (batch_data, batch_label)
+
   def genTrainData(self):
     yield self.gen()
 
