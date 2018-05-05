@@ -9,9 +9,44 @@ from scipy import signal
 
 # TODO: normalized the data
 
+class ALD_Data(object):
+  def __init__(self, data_dir, test_ratio = 0.3, resample_rate = 30, sample_period = 5, med_filter = 1):
+    self.data_dir = data_dir
+    self.test_ratio = test_ratio
+
+    self.act_train_files = []
+    self.act_test_files = []
+
+    self.split_file_sets("Walk/")
+    self.split_file_sets("Brush_teeth/")
+    self.split_file_sets("Climb_stairs/")
+    self.split_file_sets("Descend_stairs/")
+
+    self.train = ADL_Generator(self.act_train_files, resample_rate, sample_period, med_filter)
+    self.test = ADL_Generator(self.act_test_files, resample_rate, sample_period, med_filter)
+
+
+  def split_file_sets(self, act_dir):
+    folderPath = os.path.join(self.data_dir, act_dir)
+    test_files = []
+    train_files = []
+
+    for root, dirs, files in os.walk(folderPath, topdown=False):
+        for name in files:
+          file_path = os.path.join(root, name)
+          if np.random.random_sample() < self.test_ratio:
+            test_files.append(file_path)
+          else:
+            train_files.append(file_path)
+
+    self.act_train_files.append(train_files)
+    self.act_test_files.append(test_files)
+
+
+
 class ADL_Generator(object):
 
-  def __init__(self, data_dir, resample_rate = 30, sample_period = 5, med_filter = 1):
+  def __init__(self, file_list, resample_rate = 30, sample_period = 5, med_filter = 1):
     self.sample_rate = 32 #Hz
     self.sensor_min = -1.5 * 9.8 #g
     self.sensor_max =  1.5 * 9.8 #g
@@ -24,26 +59,25 @@ class ADL_Generator(object):
     self.seg_length = self.resample_rate * self.sample_period
 
     self.act_records = []
-    self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Walk/")))
-    self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Brush_teeth/")))
-    self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Climb_stairs/")))
-    self.act_records.append(self.getProcessedRecords(os.path.join(data_dir, "Descend_stairs/")))
+
+    for files in file_list:
+      self.act_records.append(self.getProcessedRecords(files))
 
     self.n_classes = len(self.act_records)
 
-    for i, act in enumerate(self.act_records):
-        print(i,":", len(act))
+    # for i, act in enumerate(self.act_records):
+    #     print(i,":", len(act))
 
     #self.act_records.append(getProcessedRecords(os.path.join(data_dir, "Standup_chair/")))
     #self.act_records.append(getProcessedRecords(os.path.join(data_dir, "Sitdown_chair/")))
 
 
-  def getProcessedRecords(self, file):
-    records = self.getRecordsFromTxt(file)
+  def getProcessedRecords(self, files):
+    records = self.getRecordsFromFiles(files)
     records = self.applyFil(records)
     return records
 
-  def scaleData(self, _data):
+  def fmtData(self, _data):
       data = self.sensor_min + (_data/self.sample_res) * (self.sensor_max - self.sensor_min)
       return data
 
@@ -51,22 +85,11 @@ class ADL_Generator(object):
       data = np.genfromtxt(file, dtype=np.float32, delimiter=" ")
       return data
 
-  def getRecordsFromTxt(self, folderPath):
+  def getRecordsFromFiles(self, files):
       records = [] #append a list
-      for root, dirs, files in os.walk(folderPath, topdown=False):
-  #         print(root)
-  #         print(dirs)
-          #prev_shape = None
-          for name in files:
-            data = self.scaleData(self.parseAdlTxt(os.path.join(root, name)))
-
-  #             if(prev_shape != None and prev_shape != data.shape):
-  #                 print("Error: data sample length not uniform ", data.shape)
-  #                 exit(-1)
-  #             else:
-  #                 prev_shape = data.shape
-            records.append(data)
-
+      for file in files:
+        data = self.fmtData(self.parseAdlTxt(file))
+        records.append(data)
       return records
 
   def applyFil(self, records):

@@ -8,7 +8,7 @@ from __future__ import print_function
 import argparse
 import sys
 import tensorflow as tf
-from sample_generator import ADL_Generator
+from sample_generator import ALD_Data
 from tensorflow.python.framework import graph_util as gu
 from tensorflow.tools.graph_transforms import TransformGraph
 
@@ -35,14 +35,14 @@ def deepnn(x):
     b_fc1 = bias_variable([192], name='b_fc1')
     a_fc1 = tf.add(tf.matmul(x, W_fc1), b_fc1, name="zscore")
     h_fc1 = tf.nn.relu(a_fc1)
-    layer1 = tf.nn.dropout(h_fc1, 0.80)
+    layer1 = tf.nn.dropout(h_fc1, 0.70)
 
   with tf.name_scope("Layer2"):
     W_fc2 = weight_variable([192, 64], name='W_fc2')
     b_fc2 = bias_variable([64], name='b_fc2')
     a_fc2 = tf.add(tf.matmul(layer1, W_fc2), b_fc2, name="zscore")
     h_fc2 = tf.nn.relu(a_fc2)
-    layer2 = tf.nn.dropout(h_fc2, 0.65)
+    layer2 = tf.nn.dropout(h_fc2, 0.50)
 
   with tf.name_scope("OutputLayer"):
     W_fc3 = weight_variable([64, 4], name='W_fc3')
@@ -61,7 +61,15 @@ def main(_):
   classes = 4
 
   # Data generator
-  adl_inputPipe = ADL_Generator(FLAGS.data_dir, resample_rate=resample_rate, sample_period=sample_period)
+  adl_inputPipe = ALD_Data(FLAGS.data_dir, test_ratio = 0.3, resample_rate=resample_rate, sample_period=sample_period)
+  
+  print("train files")
+  for i in adl_inputPipe.act_train_files:
+    print(len(i))
+
+  print("test files")
+  for i in adl_inputPipe.act_test_files:
+    print(len(i))
 
   # Specify inputs, outputs, and a cost function
   # placeholders
@@ -89,15 +97,16 @@ def main(_):
 
     # SGD
     for i in range(1, FLAGS.num_iter + 1):
-      batch_data, batch_labels = adl_inputPipe.next_batch_flat(FLAGS.batch_size)
-      feed_dict = {x: batch_data, y_: batch_labels}
-      train_step.run(feed_dict=feed_dict)
+      batch_data, batch_labels = adl_inputPipe.train.next_batch_flat(FLAGS.batch_size)
+      train_step.run(feed_dict={x: batch_data, y_: batch_labels})
       if i % FLAGS.log_iter == 0:
-        batch_data, batch_labels = adl_inputPipe.next_batch_flat(FLAGS.test_batch_size)
-        train_accuracy = accuracy.eval(feed_dict=feed_dict)
+        batch_data, batch_labels = adl_inputPipe.train.next_batch_flat(FLAGS.test_batch_size)
+        train_accuracy = accuracy.eval(feed_dict={x: batch_data, y_: batch_labels})
         print('step %d, training accuracy %g' % (i, train_accuracy))
 
-    print('test accuracy %g' % accuracy.eval(feed_dict=feed_dict))  ## TODO: Change this to use proper test data
+
+    batch_data, batch_labels = adl_inputPipe.test.next_batch_flat(FLAGS.test_batch_size)
+    print('test accuracy %g' % accuracy.eval(feed_dict={x: batch_data, y_: batch_labels}))  ## TODO: Change this to use proper test data
     # Saving checkpoint and serialize the graph
     ckpt_path = saver.save(sess, FLAGS.chkp)
     print('saving checkpoint: %s' % ckpt_path)
@@ -133,7 +142,7 @@ if __name__ == '__main__':
                       help='session check point (default: %(default)s)')
   parser.add_argument('-n', '--num-iteration', type=int,
                       dest='num_iter',
-                      default=10000,
+                      default=40000,
                       help='number of iterations (default: %(default)s)')
   parser.add_argument('--batch-size', dest='batch_size',
                       default=100, type=int,
