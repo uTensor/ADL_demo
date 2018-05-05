@@ -144,7 +144,7 @@ if __name__ == '__main__':
   parser.add_argument('--log-every-iters', type=int,
                       dest='log_iter', default=1000,
                       help='logging the training accuracy per numbers of iteration %(default)s')
-  parser.add_argument('--output-dir', default='mnist_model',
+  parser.add_argument('--output-dir', default='adl_model',
                       dest='output_dir',
                       help='output directory directory (default: %(default)s)')
   parser.add_argument('--no-quantization', action='store_true',
