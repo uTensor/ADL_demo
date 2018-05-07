@@ -93,7 +93,7 @@ class ADL_Generator(object):
       return records
 
   def applyFil(self, records):
-      resample_factor = self.resample_rate / self.sample_rate
+      resample_factor = float(self.resample_rate) / float(self.sample_rate)
       for i, r in enumerate(records):
           resample_length = np.ceil(resample_factor * r.shape[0])
           r = sp.signal.medfilt(r, self.med_filter)

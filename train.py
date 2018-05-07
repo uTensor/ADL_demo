@@ -142,10 +142,10 @@ if __name__ == '__main__':
                       help='session check point (default: %(default)s)')
   parser.add_argument('-n', '--num-iteration', type=int,
                       dest='num_iter',
-                      default=100000,
+                      default=200000,
                       help='number of iterations (default: %(default)s)')
   parser.add_argument('--batch-size', dest='batch_size',
-                      default=100, type=int,
+                      default=150, type=int,
                       help='batch size (default: %(default)s)')
   parser.add_argument('--test_batch_size', type=int,
                       default=500,
