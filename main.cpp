@@ -82,6 +82,21 @@ int main() {
  
   while(1) {
     // update LCD here
-    wait(0.5);
+    // memory test
+    uint32_t size = 1024 * 16; //16k
+      for(int i = 0; i < 5; i++) {
+      void* ptr = malloc(size);
+      if (ptr == NULL) {
+        printf("locating %d kb failed\r\n", size / 1024);
+        exit(0);
+      } else {
+        printf("locating %d kb successful\r\n", size / 1024);
+      }
+      free(ptr);
+      size *= 2;
+    }
+
+
+    wait(5);
   }
 }
