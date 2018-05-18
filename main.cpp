@@ -26,45 +26,63 @@ Serial pc(USBTX, USBRX, 115200);
 
 InterruptIn button(USER_BUTTON);
 
+struct ACC_UINT8_VECTOR {
+  uint8_t x;
+  uint8_t y;
+  uint8_t z;
+};
+
+SensorQueue<ACC_UINT8_VECTOR> buff(160, 32, 2);
+ACC_UINT8_VECTOR sample;
+
+void accTimerHandler(void) {
+  static ACC_UINT8_VECTOR sample;
+  sample.x = (uint8_t) Acc.read_x();
+  sample.y = (uint8_t) Acc.read_y();
+  sample.z = (uint8_t) Acc.read_z();
+  buff.append(sample);
+}
+
+void uTensorTrigger(void) {
+  ACC_UINT8_VECTOR tmp[160];
+  float data[160 * 3];
+  
+  buff.copyTo(tmp);
+
+  for(uint8_t i = 0; i < 160; i++) {
+    data[i*3] = G_VALUE[tmp[i].x];
+    data[i*3+1] = G_VALUE[tmp[i].y];
+    data[i*3+2] = G_VALUE[tmp[i].z];
+  }
+
+  //run inference in an event queue
+  printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[0], data[1], data[2]);
+  printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[79*3], data[79*3+1], data[79*3+2]);
+  printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[159*3], data[159*3+1], data[159*3+2]);
+
+}
+
 int main() {
 
-  pc.printf("test start\r\n");
-  int8_t x, y, z;
-  float ax,ay,az;
+  pc.printf("program start\r\n");
 
+  Acc.init();
   BSP_LCD_Init();
-
-  /* Touchscreen initialization */
   if (BSP_TS_Init(BSP_LCD_GetXSize(), BSP_LCD_GetYSize()) == TS_ERROR) {
       printf("BSP_TS_Init error\n");
   }
-
-  /* Clear the LCD */
   BSP_LCD_Clear(LCD_COLOR_WHITE);
 
-  SensorQueue_Test();
-  printf("test finished\r\n");
+  //setup buffer callback
+  buff.setCallBack(uTensorTrigger);
 
-  Acc.init();                                                     // Initialization
-  pc.printf("Value reg 0x06: %#x\n", Acc.read_reg(0x06));         // Test the correct value of the register 0x06
-  pc.printf("Value reg 0x08: %#x\n", Acc.read_reg(0x08));         // Test the correct value of the register 0x08
-  pc.printf("Value reg 0x07: %#x\n\r", Acc.read_reg(0x07));       // Test the correct value of the register 0x07
-  
+  //Sensor Ticker
+  Ticker sensorTick;
+  sensorTick.attach(&accTimerHandler, 1.0f/32); //16Hz
  
   while(1){
-    float x=0, y=0, z=0;
-    
-    // Acc.read_Tilt(&x, &y, &z);                                  // Read the acceleration                    
-    // pc.printf("Tilt x: %2.2f degree \n", x);                    // Print the tilt orientation of the X axis
-    // pc.printf("Tilt y: %2.2f degree \n", y);                    // Print the tilt orientation of the Y axis
-    // pc.printf("Tilt z: %2.2f degree \n", z);                    // Print the tilt orientation of the Z axis
- 
-    // wait_ms(100);
- 
-    pc.printf("x: %1.3f g \n", G_VALUE[Acc.read_x()]);          // Print the X axis acceleration
-    pc.printf("y: %1.3f g \n", G_VALUE[Acc.read_y()]);          // Print the Y axis acceleration
-    pc.printf("z: %1.3f g \n", G_VALUE[Acc.read_z()]);          // Print the Z axis acceleration
-    pc.printf("\n");
+    // printf("every 10 seconds\r\n");
+    //uTensorTrigger();
     wait(0.5);
   }
 }
