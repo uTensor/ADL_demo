@@ -78,11 +78,10 @@ int main() {
 
   //Sensor Ticker
   Ticker sensorTick;
-  sensorTick.attach(&accTimerHandler, 1.0f/32); //16Hz
+  sensorTick.attach(&accTimerHandler, 1.0f/32); //32Hz
  
-  while(1){
-    // printf("every 10 seconds\r\n");
-    //uTensorTrigger();
+  while(1) {
+    // update LCD here
     wait(0.5);
   }
 }
