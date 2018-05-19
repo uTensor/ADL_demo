@@ -44,7 +44,7 @@ void accTimerHandler(void) {
 }
 
 void uTensorTrigger(void) {
-  ACC_UINT8_VECTOR tmp[160];
+  ACC_UINT8_VECTOR* tmp = (ACC_UINT8_VECTOR*) malloc(sizeof(ACC_UINT8_VECTOR) * 160 * 3);
   float data[160 * 3];
   
   buff.copyTo(tmp);
@@ -54,6 +54,8 @@ void uTensorTrigger(void) {
     data[i*3+1] = G_VALUE[tmp[i].y];
     data[i*3+2] = G_VALUE[tmp[i].z];
   }
+
+  free(tmp);
 
   //run inference in an event queue
   printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[0], data[1], data[2]);
@@ -87,10 +89,10 @@ int main() {
       for(int i = 0; i < 5; i++) {
       void* ptr = malloc(size);
       if (ptr == NULL) {
-        printf("locating %d kb failed\r\n", size / 1024);
+        printf("malloc %d kb failed\r\n", size / 1024);
         exit(0);
       } else {
-        printf("locating %d kb successful\r\n", size / 1024);
+        printf("malloc %d kb successful\r\n", size / 1024);
       }
       free(ptr);
       size *= 2;
