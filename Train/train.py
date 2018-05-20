@@ -30,25 +30,22 @@ def bias_variable(shape, name):
 
 # Fully connected 2 layer NN
 def deepnn(x):
-  with tf.name_scope("Layer1"):
-    W_fc1 = weight_variable([450, 64], name='W_fc1')
-    b_fc1 = bias_variable([64], name='b_fc1')
-    a_fc1 = tf.add(tf.matmul(x, W_fc1), b_fc1, name="zscore")
-    h_fc1 = tf.nn.relu(a_fc1)
-    layer1 = tf.nn.dropout(h_fc1, 0.70)
+  W_fc1 = weight_variable([450, 64], name='W_fc1')
+  b_fc1 = bias_variable([64], name='b_fc1')
+  a_fc1 = tf.add(tf.matmul(x, W_fc1), b_fc1, name="zscore")
+  h_fc1 = tf.nn.relu(a_fc1)
+  layer1 = tf.nn.dropout(h_fc1, 0.70)
 
-  with tf.name_scope("Layer2"):
-    W_fc2 = weight_variable([64, 32], name='W_fc2')
-    b_fc2 = bias_variable([32], name='b_fc2')
-    a_fc2 = tf.add(tf.matmul(layer1, W_fc2), b_fc2, name="zscore")
-    h_fc2 = tf.nn.relu(a_fc2)
-    layer2 = tf.nn.dropout(h_fc2, 0.50)
+  W_fc2 = weight_variable([64, 32], name='W_fc2')
+  b_fc2 = bias_variable([32], name='b_fc2')
+  a_fc2 = tf.add(tf.matmul(layer1, W_fc2), b_fc2, name="zscore")
+  h_fc2 = tf.nn.relu(a_fc2)
+  layer2 = tf.nn.dropout(h_fc2, 0.50)
 
-  with tf.name_scope("OutputLayer"):
-    W_fc3 = weight_variable([32, 4], name='W_fc3')
-    b_fc3 = bias_variable([4], name='b_fc3')
-    logits = tf.add(tf.matmul(layer2, W_fc3), b_fc3, name="logits")
-    y_pred = tf.argmax(logits, 1, name='y_pred')
+  W_fc3 = weight_variable([32, 4], name='W_fc3')
+  b_fc3 = bias_variable([4], name='b_fc3')
+  logits = tf.add(tf.matmul(layer2, W_fc3), b_fc3, name="logits")
+  y_pred = tf.argmax(logits, 1, name='y_pred')
 
   return y_pred, logits
 
@@ -120,12 +117,12 @@ def main(_):
                                         FLAGS.pb_fname,
                                         as_text=False)
     else:
-      # quantize the graph
-      quant_graph_def = TransformGraph(sub_graph_def,
-                                       [],
-                                       out_nodes,
-                                       ["quantize_weights", "quantize_nodes"])
-      graph_path = tf.train.write_graph(quant_graph_def,
+      # # quantize the graph
+      # quant_graph_def = TransformGraph(sub_graph_def,
+      #                                 [],
+      #                                 out_nodes,
+      #                                 ["quantize_weights", "quantize_nodes"])
+      graph_path = tf.train.write_graph(sub_graph_def,
                                         FLAGS.output_dir,
                                         FLAGS.pb_fname,
                                         as_text=False)
@@ -164,3 +161,4 @@ if __name__ == '__main__':
                       help='output pb file (default: %(default)s)')
   FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+  

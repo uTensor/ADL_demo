@@ -37,9 +37,9 @@ ACC_UINT8_VECTOR sample;
 
 void accTimerHandler(void) {
   static ACC_UINT8_VECTOR sample;
-  sample.x = (uint8_t) Acc.read_x();
-  sample.y = (uint8_t) Acc.read_y();
-  sample.z = (uint8_t) Acc.read_z();
+  sample.x = 0b111111 & (uint8_t) Acc.read_x();
+  sample.y = 0b111111 & (uint8_t) Acc.read_y();
+  sample.z = 0b111111 & (uint8_t) Acc.read_z();
   buff.append(sample);
 }
 
