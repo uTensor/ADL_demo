@@ -7,6 +7,7 @@
 #include "F413ZH_SD_BlockDevice.h"
 #include "MMA7660FC.h"
 #include "SensorQueue.hpp"
+#include "Train/models/deep_mlp.hpp"
 
 static const float G_VALUE[64] = { 0, 0.047, 0.094, 0.141, 0.188, 0.234, 0.281, 0.328,
                       0.375, 0.422, 0.469, 0.516, 0.563, 0.609, 0.656, 0.703,
@@ -21,10 +22,13 @@ static const float G_VALUE[64] = { 0, 0.047, 0.094, 0.141, 0.188, 0.234, 0.281, 
 MMA7660FC Acc(I2C_SDA, I2C_SCL, ADDR_MMA7660);      //sda, scl, Addr
 
 Serial pc(USBTX, USBRX, 115200);
-// F413ZH_SD_BlockDevice bd;
-// FATFileSystem fs("fs");
+F413ZH_SD_BlockDevice bd;
+FATFileSystem fs("fs");
 
 InterruptIn button(USER_BUTTON);
+
+//uTensor Context
+//Context ctx;
 
 struct ACC_UINT8_VECTOR {
   uint8_t x;
@@ -44,29 +48,42 @@ void accTimerHandler(void) {
 }
 
 void uTensorTrigger(void) {
-  ACC_UINT8_VECTOR* tmp = (ACC_UINT8_VECTOR*) malloc(sizeof(ACC_UINT8_VECTOR) * 160 * 3);
-  float data[160 * 3];
+  // ACC_UINT8_VECTOR* tmp = (ACC_UINT8_VECTOR*) malloc(sizeof(ACC_UINT8_VECTOR) * 160 * 3);
+  // Tensor* data = new RamTensor<float>();
+  // std::vector<uint32_t> input_shape({1, 160 * 3});
+  // data->init(input_shape);
+  // //float data[160 * 3];
   
-  buff.copyTo(tmp);
+  // buff.copyTo(tmp);
 
-  for(uint8_t i = 0; i < 160; i++) {
-    data[i*3] = G_VALUE[tmp[i].x];
-    data[i*3+1] = G_VALUE[tmp[i].y];
-    data[i*3+2] = G_VALUE[tmp[i].z];
-  }
+  // for(uint8_t i = 0; i < 160; i++) {
+  //   data->write<float>(i*3, tmp[i].x);
+  //   data->write<float>(i*3+1, tmp[i].y);
+  //   data->write<float>(i*3+2, tmp[i].z);
+  // }
 
-  free(tmp);
+  // free(tmp);
 
-  //run inference in an event queue
-  printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[0], data[1], data[2]);
-  printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[79*3], data[79*3+1], data[79*3+2]);
-  printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[159*3], data[159*3+1], data[159*3+2]);
+  // get_deep_mlp_ctx(ctx, data);
+  // ctx.eval();
+  // S_TENSOR prediction = ctx.get({"y_pred:0"});
+  // int result = *(prediction->read<int>(0,0));
+  // printf("activity: %d\n\r", result);
 
+  // //run inference in an event queue
+  // // printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[0], data[1], data[2]);
+  // // printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[79*3], data[79*3+1], data[79*3+2]);
+  // // printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[159*3], data[159*3+1], data[159*3+2]);
+
+  // free(data);
 }
 
 int main() {
 
   pc.printf("program start\r\n");
+
+  ON_ERR(bd.init(), "SDBlockDevice init ");
+  ON_ERR(fs.mount(&bd), "Mounting the filesystem on \"/fs\". ");
 
   Acc.init();
   BSP_LCD_Init();
@@ -75,30 +92,26 @@ int main() {
   }
   BSP_LCD_Clear(LCD_COLOR_WHITE);
 
-  //setup buffer callback
-  buff.setCallBack(uTensorTrigger);
+  // //setup buffer callback
+  // buff.setCallBack(uTensorTrigger);
 
-  //Sensor Ticker
-  Ticker sensorTick;
-  sensorTick.attach(&accTimerHandler, 1.0f/32); //32Hz
+  // //Sensor Ticker
+  // Ticker sensorTick;
+  // sensorTick.attach(&accTimerHandler, 1.0f/32); //32Hz
  
+
   while(1) {
-    // update LCD here
-    // memory test
-    uint32_t size = 1024 * 16; //16k
-      for(int i = 0; i < 5; i++) {
-      void* ptr = malloc(size);
-      if (ptr == NULL) {
-        printf("malloc %d kb failed\r\n", size / 1024);
-        exit(0);
-      } else {
-        printf("malloc %d kb successful\r\n", size / 1024);
-      }
-      free(ptr);
-      size *= 2;
-    }
+    Context ctx;
+    Tensor* data = new RamTensor<float>();
+    std::vector<uint32_t> input_shape({1, 160 * 3});
+    data->init(input_shape);
 
-
-    wait(5);
+    get_deep_mlp_ctx(ctx, data);
+    ctx.eval();
+    S_TENSOR prediction = ctx.get({"y_pred:0"});
+    int result = *(prediction->read<int>(0,0));
+    printf("activity: %d\n\r", result);
+    free(data);
+    wait(1);
   }
 }
