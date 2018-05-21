@@ -57,9 +57,11 @@ void uTensorTrigger(void) {
   buff.copyTo(tmp);
 
   for(uint8_t i = 0; i < 160; i++) {
-    data->write<float>(i*3, tmp[i].x);
-    data->write<float>(i*3+1, tmp[i].y);
-    data->write<float>(i*3+2, tmp[i].z);
+    //FIXME: mis-used write function
+    float* data_ptr = (float*) data->write<float>(0, 0);
+    data_ptr[i*3] = G_VALUE[tmp[i].x];
+    data_ptr[i*3+1] = G_VALUE[tmp[i].y];
+    data_ptr[i*3+2] = G_VALUE[tmp[i].z];
   }
 
   free(tmp);
