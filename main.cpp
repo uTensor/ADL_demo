@@ -28,7 +28,7 @@ FATFileSystem fs("fs");
 InterruptIn button(USER_BUTTON);
 
 //uTensor Context
-Context ctx;
+// Context ctx;
 
 struct ACC_UINT8_VECTOR {
   uint8_t x;
@@ -48,6 +48,7 @@ void accTimerHandler(void) {
 }
 
 void uTensorTrigger(void) {
+  Context ctx;
   ACC_UINT8_VECTOR* tmp = (ACC_UINT8_VECTOR*) malloc(sizeof(ACC_UINT8_VECTOR) * 160 * 3);
   Tensor* data = new RamTensor<float>();
   std::vector<uint32_t> input_shape({1, 160 * 3});
