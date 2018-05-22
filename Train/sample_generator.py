@@ -14,33 +14,49 @@ class ALD_Data(object):
     self.data_dir = data_dir
     self.test_ratio = test_ratio
 
-    self.act_train_files = []
-    self.act_test_files = []
+    self.act_train_file_group = []
+    self.act_test_file_group = []
 
-    self.split_file_sets("Walk/")
-    self.split_file_sets("Brush_teeth/")
-    self.split_file_sets("Climb_stairs/")
-    self.split_file_sets("Descend_stairs/")
+    [train, test] = self.split_file_sets(["Walk/", "Climb_stairs/", "Descend_stairs/", "Standup_chair/", "Getup_bed/"]) #moving
+    self.act_train_file_group.append(train)
+    self.act_test_file_group.append(test)
 
-    self.train = ADL_Generator(self.act_train_files, resample_rate, sample_period, med_filter)
-    self.test = ADL_Generator(self.act_test_files, resample_rate, sample_period, med_filter)
+    [train, test] = self.split_file_sets(["Brush_teeth/",  "Use_telephone/"]) #daily activities
+    self.act_train_file_group.append(train)
+    self.act_test_file_group.append(test)
+
+    [train, test] = self.split_file_sets(["Drink_glass/", "Eat_meat/", "Eat_soup/", "Pour_water/"]) #daily food activities
+    self.act_train_file_group.append(train)
+    self.act_test_file_group.append(test)
+
+    [train, test] = self.split_file_sets(["Liedown_bed/", "Sitdown_chair/"]) #resting
+    self.act_train_file_group.append(train)
+    self.act_test_file_group.append(test)
+
+    print("Train, Test dim:")
+    for i in range(len(self.act_train_file_group)):
+      print(len(self.act_train_file_group[i]), len(self.act_test_file_group[i]))
+
+    self.train = ADL_Generator(self.act_train_file_group, resample_rate, sample_period, med_filter)
+    self.test = ADL_Generator(self.act_test_file_group, resample_rate, sample_period, med_filter)
 
 
-  def split_file_sets(self, act_dir):
-    folderPath = os.path.join(self.data_dir, act_dir)
+  def split_file_sets(self, act_dir_group):
     test_files = []
     train_files = []
 
-    for root, dirs, files in os.walk(folderPath, topdown=False):
-        for name in files:
-          file_path = os.path.join(root, name)
-          if np.random.random_sample() < self.test_ratio:
-            test_files.append(file_path)
-          else:
-            train_files.append(file_path)
+    for act_dir in act_dir_group:
+      folderPath = os.path.join(self.data_dir, act_dir)
 
-    self.act_train_files.append(train_files)
-    self.act_test_files.append(test_files)
+      for root, dirs, files in os.walk(folderPath, topdown=False):
+          for name in files:
+            file_path = os.path.join(root, name)
+            if np.random.random_sample() < self.test_ratio:
+              test_files.append(file_path)
+            else:
+              train_files.append(file_path)
+
+      return [train_files, test_files]
 
 
 

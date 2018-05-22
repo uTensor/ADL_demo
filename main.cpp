@@ -73,11 +73,7 @@ void uTensorTrigger(void) {
   printf("activity: %d\n\r", result);
 
   //run inference in an event queue
-  // printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[0], data[1], data[2]);
-  // printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[79*3], data[79*3+1], data[79*3+2]);
-  // printf("test acc reading... x: %1.3f, y: %1.3f, z: %1.3f\r\n", data[159*3], data[159*3+1], data[159*3+2]);
-
-  // free(data);
+  //printf("test acc reading... x: %d, y: %d, z: %d\r\n", tmp[0].x, tmp[1].y, tmp[2].z);
 }
 
 int main() {

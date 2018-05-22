@@ -12,24 +12,29 @@ $ git clone https://github.com/neil-tan/ADL_demo.git
 Run:
 
  ```
+$ cd Train
 $ python train.py
  ```
 Here's the expected output:
 
  ```
-step 97000, training accuracy 0.898
-step 98000, training accuracy 0.918
-step 99000, training accuracy 0.932
-step 100000, training accuracy 0.928
-test accuracy 0.826
+ ...
+step 198000, training accuracy 0.972
+step 199000, training accuracy 0.976
+step 200000, training accuracy 0.982
+test accuracy 0.872
 saving checkpoint: chkps/adl_model
 Converted 6 variables to const ops.
-2018-05-07 09:59:23.567763: I tensorflow/tools/graph_transforms/transform_graph.cc:264] Applying quantize_weights
-2018-05-07 09:59:23.569970: I tensorflow/tools/graph_transforms/transform_graph.cc:264] Applying quantize_nodes
 written graph to: adl_model/deep_mlp.pb
-the output nodes: [u'OutputLayer/y_pred']
-$
+the output nodes: ['y_pred']
  ```
+
+Using utensor-cli:
+
+```
+$ cd adl_model && utensor-cli deep_mlp.pb --output-nodes=y_pred
+```
+
 ## TODO
 
  - Merge Dropout support for uTensor-cli

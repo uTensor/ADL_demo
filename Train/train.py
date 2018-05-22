@@ -34,7 +34,7 @@ def deepnn(x):
   b_fc1 = bias_variable([64], name='b_fc1')
   a_fc1 = tf.add(tf.matmul(x, W_fc1), b_fc1, name="zscore")
   h_fc1 = tf.nn.relu(a_fc1)
-  layer1 = tf.nn.dropout(h_fc1, 0.70)
+  layer1 = tf.nn.dropout(h_fc1, 0.50)
 
   W_fc2 = weight_variable([64, 32], name='W_fc2')
   b_fc2 = bias_variable([32], name='b_fc2')
@@ -61,11 +61,11 @@ def main(_):
   adl_inputPipe = ALD_Data(FLAGS.data_dir, test_ratio = 0.3, resample_rate=resample_rate, sample_period=sample_period)
   
   print("train files")
-  for i in adl_inputPipe.act_train_files:
+  for i in adl_inputPipe.act_train_file_group:
     print(len(i))
 
   print("test files")
-  for i in adl_inputPipe.act_test_files:
+  for i in adl_inputPipe.act_test_file_group:
     print(len(i))
 
   # Specify inputs, outputs, and a cost function
