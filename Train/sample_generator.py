@@ -17,19 +17,23 @@ class ALD_Data(object):
     self.act_train_file_group = []
     self.act_test_file_group = []
 
-    [train, test] = self.split_file_sets(["Walk/", "Climb_stairs/", "Descend_stairs/", "Standup_chair/", "Getup_bed/"]) #moving
+    [train, test] = self.split_file_sets(["Walk/", "Walk_MODEL/"]) #walking
     self.act_train_file_group.append(train)
     self.act_test_file_group.append(test)
 
-    [train, test] = self.split_file_sets(["Brush_teeth/",  "Use_telephone/"]) #daily activities
+    [train, test] = self.split_file_sets(["Climb_stairs/", "Climb_stairs_MODEL/",  "Standup_chair/", "Standup_chair_MODEL/", "Getup_bed/", "Getup_bed_MODEL/"]) #up
     self.act_train_file_group.append(train)
     self.act_test_file_group.append(test)
 
-    [train, test] = self.split_file_sets(["Drink_glass/", "Eat_meat/", "Eat_soup/", "Pour_water/"]) #daily food activities
+    [train, test] = self.split_file_sets(["Brush_teeth/",  "Use_telephone/", "Drink_glass/", "Drink_glass_MODEL/", "Eat_meat/", "Eat_soup/", "Pour_water/", "Pour_water_MODEL/"]) #daily activities
     self.act_train_file_group.append(train)
     self.act_test_file_group.append(test)
 
-    [train, test] = self.split_file_sets(["Liedown_bed/", "Sitdown_chair/"]) #resting
+    [train, test] = self.split_file_sets(["Liedown_bed/", "Sitdown_chair/", "Sitdown_chair_MODEL/", "Descend_stairs/"]) #down
+    self.act_train_file_group.append(train)
+    self.act_test_file_group.append(test)
+
+    [train, test] = self.split_file_sets(["rest-gen"])
     self.act_train_file_group.append(train)
     self.act_test_file_group.append(test)
 

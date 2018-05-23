@@ -14,6 +14,11 @@ from tensorflow.tools.graph_transforms import TransformGraph
 
 FLAGS = None
 
+# Data generator settings
+resample_rate = 32 #Hz
+sample_period = 5 #seconds
+input_length = 160 #32 * 5
+classes = 4
 
 # helper functions
 def weight_variable(shape, name):
@@ -30,7 +35,7 @@ def bias_variable(shape, name):
 
 # Fully connected 2 layer NN
 def deepnn(x):
-  W_fc1 = weight_variable([450, 64], name='W_fc1')
+  W_fc1 = weight_variable([input_length * 3, 64], name='W_fc1')
   b_fc1 = bias_variable([64], name='b_fc1')
   a_fc1 = tf.add(tf.matmul(x, W_fc1), b_fc1, name="zscore")
   h_fc1 = tf.nn.relu(a_fc1)
@@ -40,10 +45,10 @@ def deepnn(x):
   b_fc2 = bias_variable([32], name='b_fc2')
   a_fc2 = tf.add(tf.matmul(layer1, W_fc2), b_fc2, name="zscore")
   h_fc2 = tf.nn.relu(a_fc2)
-  layer2 = tf.nn.dropout(h_fc2, 0.50)
+  layer2 = tf.nn.dropout(h_fc2, 0.40)
 
-  W_fc3 = weight_variable([32, 4], name='W_fc3')
-  b_fc3 = bias_variable([4], name='b_fc3')
+  W_fc3 = weight_variable([32, 5], name='W_fc3')
+  b_fc3 = bias_variable([5], name='b_fc3')
   logits = tf.add(tf.matmul(layer2, W_fc3), b_fc3, name="logits")
   y_pred = tf.argmax(logits, 1, name='y_pred')
 
@@ -51,11 +56,6 @@ def deepnn(x):
 
 
 def main(_):
-  # Data generator settings
-  resample_rate = 30 #Hz
-  sample_period = 5 #seconds
-  input_length = 150 #30 * 5
-  classes = 4
 
   # Data generator
   adl_inputPipe = ALD_Data(FLAGS.data_dir, test_ratio = 0.3, resample_rate=resample_rate, sample_period=sample_period)
@@ -70,8 +70,8 @@ def main(_):
 
   # Specify inputs, outputs, and a cost function
   # placeholders
-  x = tf.placeholder(tf.float32, [None, 450], name="x")
-  y_ = tf.placeholder(tf.float32, [None, 4], name="y")
+  x = tf.placeholder(tf.float32, [None, input_length * 3], name="x")
+  y_ = tf.placeholder(tf.float32, [None, 5], name="y")
 
   # Build the graph for the deep net
   y_pred, logits = deepnn(x)
