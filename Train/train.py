@@ -39,15 +39,15 @@ def deepnn(x):
   b_fc1 = bias_variable([64], name='b_fc1')
   a_fc1 = tf.add(tf.matmul(x, W_fc1), b_fc1, name="zscore")
   h_fc1 = tf.nn.relu(a_fc1)
-  layer1 = tf.nn.dropout(h_fc1, 0.50)
+  layer1 = tf.nn.dropout(h_fc1, 0.30)
 
-  W_fc2 = weight_variable([64, 32], name='W_fc2')
-  b_fc2 = bias_variable([32], name='b_fc2')
+  W_fc2 = weight_variable([64, 64], name='W_fc2')
+  b_fc2 = bias_variable([64], name='b_fc2')
   a_fc2 = tf.add(tf.matmul(layer1, W_fc2), b_fc2, name="zscore")
   h_fc2 = tf.nn.relu(a_fc2)
-  layer2 = tf.nn.dropout(h_fc2, 0.40)
+  layer2 = tf.nn.dropout(h_fc2, 0.50)
 
-  W_fc3 = weight_variable([32, 5], name='W_fc3')
+  W_fc3 = weight_variable([64, 5], name='W_fc3')
   b_fc3 = bias_variable([5], name='b_fc3')
   logits = tf.add(tf.matmul(layer2, W_fc3), b_fc3, name="logits")
   y_pred = tf.argmax(logits, 1, name='y_pred')
@@ -139,13 +139,13 @@ if __name__ == '__main__':
                       help='session check point (default: %(default)s)')
   parser.add_argument('-n', '--num-iteration', type=int,
                       dest='num_iter',
-                      default=200000,
+                      default=300000,
                       help='number of iterations (default: %(default)s)')
   parser.add_argument('--batch-size', dest='batch_size',
-                      default=150, type=int,
+                      default=300, type=int,
                       help='batch size (default: %(default)s)')
   parser.add_argument('--test_batch_size', type=int,
-                      default=500,
+                      default=800,
                       help='generated test batch size, from common data, default = 500')
   parser.add_argument('--log-every-iters', type=int,
                       dest='log_iter', default=1000,
