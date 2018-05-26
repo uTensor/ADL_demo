@@ -1,21 +1,18 @@
 # ADL
 
-  Activity of Daily living work-in-progress repository. This means to serve as a time-series-data-processing reference implementation using uTensor. Datasets of different activities are group into 4 classes:
-
-In [Train/sample_generator.py](https://github.com/neil-tan/ADL_demo/blob/master/Train/sample_generator.py)
-```
-  [train, test] = self.split_file_sets(["Walk/", "Climb_stairs/", "Descend_stairs/", "Standup_chair/" "Getup_bed/"]) #moving
-  ...
-   [train, test] = self.split_file_sets(["Brush_teeth/",  "Use_telephone/"]) #daily activities
-  ...
-   [train, test] = self.split_file_sets(["Drink_glass/", "Eat_meat/", "Eat_soup/", "Pour_water/"]) #daily food activities
-  ...
-   [train, test] = self.split_file_sets(["Liedown_bed/", "Sitdown_chair/"]) #resting
-```
+  uTensor enables motion recognition on microcontrollers. The model is trained with a modified Activity of Daily dataset recognizing 5 classes: 
+  
+  - Walking
+  - Climbing
+  - Activities
+  - Descending
+  - Resting
+  
+  The project is also a reference implementation of sequential data processing with Mbed and uTensor.
+  
+  ![Board, SD, grove shield and Accelerometer](/docs/images/boardResting.jpg)
 
 For sensor setup, please refer to [Train/HMP_Dataset/MANUAL.txt](https://github.com/neil-tan/ADL_demo/blob/master/Train/HMP_Dataset/MANUAL.txt). The grove sensor is place flat on the back of user's right hand, with the connector socket oriented furthest away from the wrist.
-
-
 
 ## Hardware requirement:
 
@@ -32,13 +29,11 @@ For sensor setup, please refer to [Train/HMP_Dataset/MANUAL.txt](https://github.
 - Run:
 ```
 $ mbed deploy
-$ mbed compile -m DISCO_F413ZH -t GCC_ARM --profile=uTensor/build_profile/release.json -f
+$ mbed target auto
+$ mbed compile -t GCC_ARM --profile=uTensor/build_profile/release.json
 ```
+- Locate the binary path from the terminal output, and flash it onto the board
 
 ## Training
 For Training Instruction, please see [Train/README.md](https://github.com/neil-tan/ADL_demo/blob/master/Train/README.md)
-
-## TODO:
-- Fine tunning the model
-- Add the ability to identify idle activities
 

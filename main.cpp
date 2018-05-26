@@ -1,4 +1,5 @@
 /* Includes */
+#include <cstdio>
 #include "mbed.h"
 #include "stm32f413h_discovery.h"
 #include "stm32f413h_discovery_ts.h"
@@ -72,8 +73,31 @@ void uTensorTrigger(void) {
   int result = *(prediction->read<int>(0,0));
   printf("activity: %d\n\r", result);
 
+  char result_str[16];
+  switch (result) {
+    case 0:
+      sprintf(result_str, "Walking\0");
+    break;
+    case 1:
+      sprintf(result_str, "Inclining\0");
+    break;
+    case 2:
+      sprintf(result_str, "Activities\0");
+    break;
+    case 3:
+      sprintf(result_str, "Descending\0");
+    break;
+    default:
+      sprintf(result_str, "Resting\0");
+  }
+
   //run inference in an event queue
   //printf("test acc reading... x: %d, y: %d, z: %d\r\n", tmp[0].x, tmp[1].y, tmp[2].z);
+
+  BSP_LCD_Clear(LCD_COLOR_WHITE);
+  BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+  BSP_LCD_SetFont(&Font24);
+  BSP_LCD_DisplayStringAt(0, 120, (uint8_t*) result_str, CENTER_MODE);
 }
 
 int main() {

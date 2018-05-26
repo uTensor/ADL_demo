@@ -13,6 +13,7 @@ Run:
 
  ```
 $ cd Train
+$ python gen_rest.py
 $ python train.py
  ```
 Here's the expected output:
@@ -34,8 +35,3 @@ Using utensor-cli:
 ```
 $ cd adl_model && utensor-cli deep_mlp.pb --output-nodes=y_pred
 ```
-
-## TODO
-
- - Merge Dropout support for uTensor-cli
- - Application code for sensor interface, capture and inference.
