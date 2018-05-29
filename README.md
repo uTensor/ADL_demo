@@ -23,14 +23,15 @@ For sensor setup, please refer to [Train/HMP_Dataset/MANUAL.txt](https://github.
 
 ## Build Instruction
 - Recommend [cloud9 environment](https://github.com/uTensor/cloud9-installer)
-- Clone the repository
-- Copy `Train\adl_model\constants` onto the root of a FAT32 formated SD card
-- Insert the SD card into the board
 - Run:
 ```
-$ mbed deploy
+$ mbed import https://github.com/uTensor/ADL_demo
+$ cd ADL_demo
 $ mbed compile -m DISCO_F413ZH -t GCC_ARM --profile=uTensor/build_profile/release.json
 ```
+- Copy `Train\adl_model\constants` onto the root of a FAT32 formated SD card
+- Insert the SD card into the board
+- Ensure the Grove sensor is connected
 - Locate the binary path from the terminal output, and flash it onto the board
 
 ## Training
