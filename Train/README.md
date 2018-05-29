@@ -1,14 +1,21 @@
 # uTensor ADL Demo
 
-  This is a WIP repository laying the groudwork for machine learning on accelerometer data on MCUs. For initial feasbility study, we are using the Activity of Daily Living (ADL) dataset. It contains accelerometer recorded at 32 Hz and lengthing from seconds to minutes, some of the activities include: walking, climbing stairs, brushing teeth, etc.
-  
+  Activity of Daily living work-in-progress repository. This means to serve as a time-series-data-processing reference implementation using uTensor. Datasets of different activities are group into 4 classes:
+
+In [sample_generator.py](https://github.com/neil-tan/ADL_demo/blob/master/Train/sample_generator.py)
+```
+    [train, test] = self.split_file_sets(["Walk/", "Walk_MODEL/"]) #walking
+  ...
+    [train, test] = self.split_file_sets(["Climb_stairs/", "Climb_stairs_MODEL/",  "Standup_chair/", "Standup_chair_MODEL/", "Getup_bed/", "Getup_bed_MODEL/"]) #up
+  ...
+    [train, test] = self.split_file_sets(["Brush_teeth/",  "Use_telephone/", "Drink_glass/", "Drink_glass_MODEL/", "Eat_meat/", "Eat_soup/", "Pour_water/", "Pour_water_MODEL/"]) #daily activities
+  ...
+    [train, test] = self.split_file_sets(["Liedown_bed/", "Sitdown_chair/", "Sitdown_chair_MODEL/", "Descend_stairs/"]) #down
+  ...
+    [train, test] = self.split_file_sets(["Liedown_bed/", "Sitdown_chair/"]) #resting
+
+
 ## Build instruction
-In [Cloud9 reference environment](https://github.com/uTensor/cloud9-installer), clone the repository.
-
-```
-$ git clone https://github.com/neil-tan/ADL_demo.git
-```
-
 Run:
 
  ```
@@ -35,3 +42,6 @@ Using utensor-cli:
 ```
 $ cd adl_model && utensor-cli deep_mlp.pb --output-nodes=y_pred
 ```
+
+- Model parameters are saved into the PROJECTROOT/Train/constants/deep-mlp/ as idx files
+- C++ graph descripts are saved as .cpp and .hpp files in PROJECTROOT/Train/models

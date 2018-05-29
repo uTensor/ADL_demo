@@ -29,8 +29,7 @@ For sensor setup, please refer to [Train/HMP_Dataset/MANUAL.txt](https://github.
 - Run:
 ```
 $ mbed deploy
-$ mbed target auto
-$ mbed compile -t GCC_ARM --profile=uTensor/build_profile/release.json
+$ mbed compile -m DISCO_F413ZH -t GCC_ARM --profile=uTensor/build_profile/release.json
 ```
 - Locate the binary path from the terminal output, and flash it onto the board
 
