@@ -3,6 +3,7 @@
   Activity of Daily living work-in-progress repository. This means to serve as a time-series-data-processing reference implementation using uTensor. Datasets of different activities are group into 4 classes:
 
 In [sample_generator.py](https://github.com/neil-tan/ADL_demo/blob/master/Train/sample_generator.py)
+
 ```
     [train, test] = self.split_file_sets(["Walk/", "Walk_MODEL/"]) #walking
   ...
@@ -12,17 +13,19 @@ In [sample_generator.py](https://github.com/neil-tan/ADL_demo/blob/master/Train/
   ...
     [train, test] = self.split_file_sets(["Liedown_bed/", "Sitdown_chair/", "Sitdown_chair_MODEL/", "Descend_stairs/"]) #down
   ...
-    [train, test] = self.split_file_sets(["Liedown_bed/", "Sitdown_chair/"]) #resting
-
+    [train, test] = self.split_file_sets(["rest-gen"])
+```
 
 ## Build instruction
 Run:
 
  ```
-$ cd Train
-$ python gen_rest.py
-$ python train.py
+  $ cd Train
+  $ python gen_rest.py
+  $ python train.py
+
  ```
+
 Here's the expected output:
 
  ```
@@ -44,4 +47,4 @@ $ cd adl_model && utensor-cli deep_mlp.pb --output-nodes=y_pred
 ```
 
 - Model parameters are saved into the PROJECTROOT/Train/constants/deep-mlp/ as idx files
-- C++ graph descripts are saved as .cpp and .hpp files in PROJECTROOT/Train/models
+- C++ graph descripts are saved as .cpp and .hpp files in PROJECTROOT/Train/modelsq
