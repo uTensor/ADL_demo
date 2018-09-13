@@ -43,7 +43,7 @@ the output nodes: ['y_pred']
 Using utensor-cli:
 
 ```
-$ cd adl_model && utensor-cli deep_mlp.pb --output-nodes=y_pred
+$ cd adl_model && utensor-cli convert deep_mlp.pb --output-nodes=y_pred
 ```
 
 - Model parameters are saved into the PROJECTROOT/Train/constants/deep-mlp/ as idx files

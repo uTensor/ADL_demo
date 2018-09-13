@@ -4,8 +4,6 @@
 #include "stm32f413h_discovery.h"
 #include "stm32f413h_discovery_ts.h"
 #include "stm32f413h_discovery_lcd.h"
-#include "FATFileSystem.h"
-#include "F413ZH_SD_BlockDevice.h"
 #include "MMA7660FC.h"
 #include "SensorQueue.hpp"
 #include "Train/adl_model/models/deep_mlp.hpp"
@@ -23,8 +21,6 @@ static const float G_VALUE[64] = { 0, 0.047, 0.094, 0.141, 0.188, 0.234, 0.281, 
 MMA7660FC Acc(I2C_SDA, I2C_SCL, ADDR_MMA7660);      //sda, scl, Addr
 
 Serial pc(USBTX, USBRX, 115200);
-F413ZH_SD_BlockDevice bd;
-FATFileSystem fs("fs");
 
 InterruptIn button(USER_BUTTON);
 
@@ -103,9 +99,6 @@ void uTensorTrigger(void) {
 int main() {
 
   pc.printf("program start\r\n");
-
-  ON_ERR(bd.init(), "SDBlockDevice init ");
-  ON_ERR(fs.mount(&bd), "Mounting the filesystem on \"/fs\". ");
 
   Acc.init();
   BSP_LCD_Init();
